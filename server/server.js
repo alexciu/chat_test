@@ -14,14 +14,27 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
     console.log("User conected")
 
+    socket.emit('newMessage', {
+        from: 'Admin',
+        text: 'Welcome to the chat.',
+        createAt: new Date().toLocaleTimeString()
+    });
+
+    socket.broadcast.emit('newMessage', {
+        from: 'Admin',
+        text: 'Someone just joined.',
+        createAt: new Date().toLocaleTimeString()
+    });
+
     socket.on('createMessage', (message) => {
         console.log('new message:', message)
 
-        io.emit('newMessage', {
+        socket.broadcast.emit('newMessage', {
             from: message.from,
             text: message.text,
             createAt: new Date().toLocaleTimeString()
         });
+        
     })
 
     socket.on('disconnect', () => {
