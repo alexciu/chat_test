@@ -1,33 +1,54 @@
-
 var socket = io();
 
-socket.on('connect', function() {
-    console.log('Conected to server.')
-})
+socket.on('connect', function () {
+  console.log('Connected to server');
+});
 
-socket.on('disconnect', function() {
-    console.log('Disconnected from server.')
-})
+socket.on('disconnect', function () {
+  console.log('Disconnected from server');
+});
 
-socket.on('newMessage', function(newMessage) {
-    console.log(`New message from ${newMessage.from}: ${newMessage.text} - ${newMessage.createAt}`)
+socket.on('newMessage', function (message) {
+  console.log('newMessage', message);
+  var li = jQuery('<li></li>');
+  li.text(`${message.from}: ${message.text}`);
 
-    let li = $('<li></li>');
-    li.text(`${newMessage.from}: ${newMessage.text} - ${newMessage.createAt}`);
-    $('#messages').append(li);
-})
+  jQuery('#messages').append(li);
+});
 
-$(document).ready(function(){
+socket.on('newLocationMessage', function (message) {
+  var li = jQuery('<li></li>');
+  var a = jQuery('<a target="_blank">My current location</a>');
 
-    $('#message-form').on('submit', function(e){
-        e.preventDefault();
+  li.text(`${message.from}: `);
+  a.attr('href', message.url);
+  li.append(a);
+  jQuery('#messages').append(li);
+});
 
-        socket.emit('createMessage', {
-            from: 'User',
-            text: $('[name=message]').val()
-        }, function(){
+jQuery('#message-form').on('submit', function (e) {
+  e.preventDefault();
 
-        })
-    }) 
+  socket.emit('createMessage', {
+    from: 'User',
+    text: jQuery('[name=message]').val()
+  }, function () {
 
-})
+  });
+});
+
+var locationButton = jQuery('#send-location');
+locationButton.on('click', function () {
+  if (!navigator.geolocation) {
+    return alert('Geolocation not supported by your browser.');
+  }
+
+  navigator.geolocation.getCurrentPosition(function (position) {
+    socket.emit('createLocationMessage', {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude
+    });
+  }, function () {
+    alert('Unable to fetch location.');
+  });
+});
