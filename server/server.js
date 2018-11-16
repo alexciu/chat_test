@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
     socket.on('createMessage', (message) => {
         console.log('new message:', message)
 
-        socket.broadcast.emit('newMessage', {
+        io.emit('newMessage', {
             from: message.from,
             text: message.text,
             createAt: new Date().toLocaleTimeString()
