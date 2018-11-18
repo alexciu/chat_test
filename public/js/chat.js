@@ -18,6 +18,7 @@ function scrollToBottom(){
 
 
 
+
 socket.on('connect', function () {
   console.log('Connected to server');
   var params = jQuery.deparam(window.location.search)
@@ -27,7 +28,10 @@ socket.on('connect', function () {
       alert(err);
       window.location.href = '/';
     } else {
-
+      if (location.href.includes('?')) { 
+        history.pushState({}, null, location.href.split('.html?')[0]); 
+        //window.history.pushState({}, document.title, window.location.pathname);
+      }
     }
   });
 });
